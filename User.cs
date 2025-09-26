@@ -39,7 +39,7 @@ class User
         }
         _password = TryPassword();
     }
-    public bool TryLogin(string email, string password)
+    public bool TryLogin(string? email, string? password)
     {
         return Email == email && _password == password;
     }
