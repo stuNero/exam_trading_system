@@ -28,7 +28,7 @@ class User
             }
             return attempt1;
         }
-        TryPassword();
+        _password = TryPassword();
     }
     public bool TryLogin(string email, string password)
     {
