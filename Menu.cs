@@ -5,5 +5,5 @@ enum Menu
     None,
     Main,
     Login,
-    CreateAccount,
+    RegisterAccount,
 }

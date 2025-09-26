@@ -35,7 +35,6 @@ class Utility
     }
     public static void Success(string msg, bool menuChoice = true)
     {
-
         Console.ForegroundColor = ConsoleColor.DarkGreen;
         Console.WriteLine(msg);
         Console.ResetColor();
