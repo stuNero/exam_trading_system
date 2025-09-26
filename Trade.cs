@@ -4,7 +4,7 @@ namespace App;
 
 class Trade
 {
-    User sender;
-    User reciever;
-    List<Item> items;
+    User Sender;
+    User Reciever;
+    List<Item> Items;
 }

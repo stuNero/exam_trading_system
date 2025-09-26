@@ -2,8 +2,8 @@ namespace App;
 
 class Item
 {
-    public string name;
-    public string description;
+    public string Name;
+    public string Description;
 
-    User owner;
+    User Owner;
 }
