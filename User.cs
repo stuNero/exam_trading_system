@@ -13,6 +13,15 @@ class User
         Name = name;
         Email = email;
     }
+    public string Info(bool inclPassword = false)
+    {
+        string txt = $"Name: {Name}\nEmail: {Email}";
+        if (inclPassword)
+        {
+            txt += "Password: " + _password;
+        }
+        return txt;
+    }
     public void SetPassword()
     {
         string TryPassword()
