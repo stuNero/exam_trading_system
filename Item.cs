@@ -5,7 +5,7 @@ class Item
     public string? Name;
     public string? Description;
 
-    User? Owner;
+    public User? Owner;
 
     public Item(string name, string description)
     {

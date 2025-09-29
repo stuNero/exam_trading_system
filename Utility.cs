@@ -1,11 +1,10 @@
 namespace App;
 
-class Utility
+abstract class Utility
 {
     public static void GenerateMenu(string title = "Choose a Menu Option:", params string[] choices)
     {
         string msg = "________________________\n";
-
         msg += title + "\n";
 
         for (int i = 0; i < choices.Length; i++)
@@ -17,14 +16,20 @@ class Utility
         Console.WriteLine(msg);
         Console.ResetColor();
     }
+    public static string Prompt(string input)
+    {
+        Console.ForegroundColor = ConsoleColor.DarkGray;
+        Console.WriteLine("\n(Empty line and 'ENTER' to cancel..)");
+        Console.ResetColor();
+        Console.Write(input);
+        return Console.ReadLine();
+    }
     public static void Error(string msg)
     {
-
         Console.ForegroundColor = ConsoleColor.DarkRed;
         Console.WriteLine(msg);
-        Console.ResetColor();
         Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.Write("'ENTER' för att återgå till menyn...");
+        Console.Write("'ENTER' to return to menu...");
         Console.ResetColor();
         Console.ReadLine();
         Console.Clear();
@@ -33,14 +38,13 @@ class Utility
     {
         Console.ForegroundColor = ConsoleColor.DarkGreen;
         Console.WriteLine(msg);
-        Console.ResetColor();
         if (menuChoice)
         {
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.Write("'ENTER' för att återgå till menyn...");
-            Console.ResetColor();
+            Console.Write("'ENTER' to return to menu...");
             Console.ReadLine();
         }
+        Console.ResetColor();
         Thread.Sleep(1000);
         Console.Clear();
     }

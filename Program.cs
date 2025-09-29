@@ -3,10 +3,10 @@ using System.Threading.Channels;
 using App;
 
 List<User> users = new List<User>();
+List<Item> items = new List<Item>();
 
 Menu currentMenu = Menu.None;
-
-User active_user = null;
+User? active_user = null;
 
 while (true)
 {
@@ -14,7 +14,8 @@ while (true)
     switch (currentMenu)
     {
         case Menu.None:
-            Utility.GenerateMenu(title:"Welcome to Stratholme Trading",choices: new[] { "Login", "Register Account", "Quit" });
+            Utility.GenerateMenu(title: "Welcome to Stratholme Trading",
+                                 choices: new[] { "Login", "Register Account", "Quit" });
             int.TryParse(Console.ReadLine(), out int choice);
             switch (choice)
             {
@@ -35,17 +36,26 @@ while (true)
             break;
         case Menu.RegisterAccount:
             Console.WriteLine("--Register Account--");
-            Console.Write("Enter name: ");
-            string? name = Console.ReadLine();
-            Console.Write("Enter email: ");
-            string? email = Console.ReadLine();
 
+            string name = Utility.Prompt("Enter name");
+            if (name == "\r\n" || name == "\n" || name == "")
+            {
+                currentMenu = Menu.None;
+                break;
+            }
+            string email = Utility.Prompt("Enter email");
+            if (email == "\r\n" || email == "\n" || name == "")
+            {
+                currentMenu = Menu.None;
+                break;
+            }
             RegisterUser(name, email);
 
             currentMenu = Menu.None;
             break;
         case Menu.Login:
             Console.WriteLine("--Login-- ");
+
             Console.Write("Email:");
             string? loginEmail = Console.ReadLine();
             Console.Write("Password:");
@@ -68,7 +78,8 @@ while (true)
         case Menu.Main:
             while (true)
             {
-                Utility.GenerateMenu(title: "--Main Menu--", choices: new[] { "Trade", "View Your Items", "Log out" });
+                Utility.GenerateMenu(title: "--Main Menu--",
+                                     choices: new[] { "Trade", "View Your Items", "Log out" });
                 int.TryParse(Console.ReadLine(), out int input);
                 switch (input)
                 {
@@ -76,16 +87,19 @@ while (true)
 
                         break;
                     case 2:
-
+                        foreach (Item item in items)
+                        {
+                            if (item.Owner == active_user)
+                            {
+                                Console.WriteLine(item.Info());
+                            }
+                        }
                         break;
                     case 3:
-                        Utility.Success($"User {active_user.Name} logged out.");
+                        Utility.Success($"User {active_user?.Name} logged out.");
                         active_user = null;
                         currentMenu = Menu.None;
                         break;
-                    case 4:
-                        break;
-
                 }
                 break;
             }
