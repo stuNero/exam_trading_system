@@ -22,14 +22,20 @@ class User
         }
         return txt;
     }
+    public bool HasPassword()
+    {
+        return !string.IsNullOrEmpty(_password);
+    }
     public void SetPassword()
     {
         string TryPassword()
         {
-            Console.Write("Input password: ");
-            string? attempt1 = Console.ReadLine();
-            Console.Write("Confirm password: ");
-            string? attempt2 = Console.ReadLine();
+            string attempt1 = Utility.Prompt("Input password: ");
+            if (string.IsNullOrWhiteSpace(attempt1)) { return attempt1; }
+
+            string attempt2 = Utility.Prompt("Confirm password: ");
+            if (string.IsNullOrWhiteSpace(attempt2)) { return attempt2; }
+
             if (attempt1 != attempt2)
             {
                 Utility.Error("Passwords not matching\nTry again..");
