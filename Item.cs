@@ -15,6 +15,6 @@ class Item
     }
     public string Info()
     {
-        return $"Name:\n{Name}\nDescription:\n{Description}";
+        return $"Name:\n-{Name}-\nDescription:\n'{Description}'\nOwner:\n-{Owner.Name}";
     }
 }
