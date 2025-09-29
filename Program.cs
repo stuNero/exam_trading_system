@@ -14,7 +14,7 @@ while (true)
     switch (currentMenu)
     {
         case Menu.None:
-            Utility.GenerateMenu(title: "Welcome to Gadgetzan Trading",
+            Utility.GenerateMenu(title: "     ---Welcome to Gadgetzan Trading---",
                                  choices: new[] { "Login", "Register Account", "Quit" });
             int.TryParse(Console.ReadLine(), out int choice);
             switch (choice)
@@ -35,7 +35,7 @@ while (true)
             }
             break;
         case Menu.RegisterAccount:
-            Console.WriteLine("--Register Account--");
+            Console.WriteLine("     --Register Account--");
 
             string name = Utility.Prompt("Enter name: ");
             if (string.IsNullOrWhiteSpace(name))
@@ -50,7 +50,7 @@ while (true)
             currentMenu = Menu.None;
             break;
         case Menu.Login:
-            Console.WriteLine("--Login-- ");
+            Console.WriteLine("     --Login-- ");
 
             email = Utility.Prompt("Enter email: ");
             if (string.IsNullOrWhiteSpace(email))
@@ -78,8 +78,8 @@ while (true)
         case Menu.Main:
             while (true)
             {
-                Utility.GenerateMenu(title: "--Main Menu--",
-                                     choices: new[] { "Trade", "View Your Items", "Log out" });
+                Utility.GenerateMenu(title: "     ---Main Menu---",
+                                     choices: new[] { "Trade","Add item to system", "View Your Items", "Log out" });
                 int.TryParse(Console.ReadLine(), out int input);
                 switch (input)
                 {
@@ -87,6 +87,22 @@ while (true)
 
                         break;
                     case 2:
+                        Console.Clear();
+                        Console.WriteLine("     ---Add an item---");
+
+                        string itemName = Utility.Prompt("Item name: ");
+                        if(string.IsNullOrWhiteSpace(itemName)) { currentMenu = Menu.Main; break; }
+
+                        string itemDesc = Utility.Prompt("Item description: ");
+                        if(string.IsNullOrWhiteSpace(itemDesc)) { currentMenu = Menu.Main; break; }
+
+                        Item newItem = new Item(itemName, itemDesc, active_user);
+                        items.Add(newItem);
+                        Utility.Success($"Item Added: \n{newItem.Info()}");
+                        break;
+                    case 3:
+                        Console.Clear();
+                        Console.WriteLine("     ---Your Items---");
                         foreach (Item item in items)
                         {
                             if (item.Owner == active_user)
@@ -94,8 +110,10 @@ while (true)
                                 Console.WriteLine(item.Info());
                             }
                         }
+                        Console.ReadLine();
                         break;
-                    case 3:
+
+                    case 5:
                         Utility.Success($"User {active_user?.Name} logged out.");
                         active_user = null;
                         currentMenu = Menu.None;

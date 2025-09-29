@@ -9,7 +9,7 @@ abstract class Utility
 
         for (int i = 0; i < choices.Length; i++)
         {
-            msg += $"[{i + 1}] {choices[i]}\n";
+            msg += $"[{i + 1}] [{choices[i]}]\n";
         }
         msg += "________________________";
         Console.ForegroundColor = ConsoleColor.DarkYellow;
