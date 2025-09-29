@@ -14,7 +14,7 @@ while (true)
     switch (currentMenu)
     {
         case Menu.None:
-            Utility.GenerateMenu(title: "Welcome to Stratholme Trading",
+            Utility.GenerateMenu(title: "Welcome to Gadgetzan Trading",
                                  choices: new[] { "Login", "Register Account", "Quit" });
             int.TryParse(Console.ReadLine(), out int choice);
             switch (choice)
@@ -37,18 +37,14 @@ while (true)
         case Menu.RegisterAccount:
             Console.WriteLine("--Register Account--");
 
-            string name = Utility.Prompt("Enter name");
-            if (name == "\r\n" || name == "\n" || name == "")
-            {
-                currentMenu = Menu.None;
-                break;
-            }
-            string email = Utility.Prompt("Enter email");
-            if (email == "\r\n" || email == "\n" || name == "")
-            {
-                currentMenu = Menu.None;
-                break;
-            }
+            string name = Utility.Prompt("Enter name: ");
+            if (string.IsNullOrWhiteSpace(name))
+            { currentMenu = Menu.None; break; }
+
+            string email = Utility.Prompt("Enter email: ");
+            if (string.IsNullOrWhiteSpace(email))
+            { currentMenu = Menu.None; break; }
+
             RegisterUser(name, email);
 
             currentMenu = Menu.None;
@@ -56,14 +52,18 @@ while (true)
         case Menu.Login:
             Console.WriteLine("--Login-- ");
 
-            Console.Write("Email:");
-            string? loginEmail = Console.ReadLine();
-            Console.Write("Password:");
-            string? loginPassword = Console.ReadLine();
+            email = Utility.Prompt("Enter email: ");
+            if (string.IsNullOrWhiteSpace(email))
+            { currentMenu = Menu.None; break; }
+
+            string password = Utility.Prompt("Enter password: ");
+            if (string.IsNullOrWhiteSpace(password))
+            { currentMenu = Menu.None; break; }
+
             bool check = false;
             foreach (User user in users)
             {
-                if (user.TryLogin(loginEmail, loginPassword))
+                if (user.TryLogin(email, password))
                 {
                     Console.Clear();
                     check = true;
@@ -122,9 +122,16 @@ void RegisterUser(string? name, string? email)
     }
     if (!check)
     {
-        User newUser = new User(name, email);
+        User? newUser = new User(name, email);
         newUser.SetPassword();
-        users.Add(newUser);
-        Utility.Success($"Account registered!\nAccount details:\n{newUser.Info(inclPassword:true)}");
+        if (!newUser.HasPassword())
+        {
+            Utility.Error("Password cannot be empty");
+        }
+        else
+        {
+            users.Add(newUser);
+            Utility.Success($"Account registered!\nAccount details:\n{newUser.Info(inclPassword:true)}");
+        }
     }
 }
