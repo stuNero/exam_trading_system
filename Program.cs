@@ -79,12 +79,13 @@ while (true)
             while (true)
             {
                 Utility.GenerateMenu(title: "     ---Main Menu---",
-                                     choices: new[] { "Trade","Add item to system", "View Your Items", "Log out" });
+                                     choices: new[] { "Trade","Add item to system", "View Your Items","View all items in system", "Log out" });
                 int.TryParse(Console.ReadLine(), out int input);
                 switch (input)
                 {
                     case 1:
-
+                        Console.WriteLine("WIP");
+                        Console.ReadLine();
                         break;
                     case 2:
                         Console.Clear();
@@ -103,16 +104,40 @@ while (true)
                     case 3:
                         Console.Clear();
                         Console.WriteLine("     ---Your Items---");
+                        int ctr = 0;
                         foreach (Item item in items)
                         {
+                            if (ctr % 2 == 0)
+                            { Console.ForegroundColor = ConsoleColor.Cyan; }
+                            else
+                            { Console.ForegroundColor = ConsoleColor.Magenta; }
+
                             if (item.Owner == active_user)
                             {
-                                Console.WriteLine(item.Info());
+                                Console.WriteLine($"_\n{item.Info()}\n_");
                             }
+                            ctr += 1;
                         }
+                        Console.ResetColor();
                         Console.ReadLine();
                         break;
+                    case 4:
+                        Console.Clear();
+                        Console.WriteLine("     ---All Available Items---");
+                        ctr = 0;
+                        foreach (Item item in items)
+                        {
+                            if (ctr % 2 == 0)
+                            { Console.ForegroundColor = ConsoleColor.Cyan; }
+                            else
+                            { Console.ForegroundColor = ConsoleColor.Magenta; }
 
+                            Console.WriteLine($"_\n{item.Info()}\n_");
+                            ctr += 1;
+                        }
+                        Console.ResetColor();
+                        Console.ReadLine();
+                        break;
                     case 5:
                         Utility.Success($"User {active_user?.Name} logged out.");
                         active_user = null;
