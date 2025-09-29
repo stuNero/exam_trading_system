@@ -18,7 +18,7 @@ class User
         string txt = $"Name: {Name}\nEmail: {Email}";
         if (inclPassword)
         {
-            txt += "Password: " + _password;
+            txt += "\nPassword: " + _password;
         }
         return txt;
     }
