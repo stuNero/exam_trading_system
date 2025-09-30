@@ -24,26 +24,29 @@ class User
     }
     public bool HasPassword()
     {
-        return !string.IsNullOrEmpty(_password);
+        return !string.IsNullOrWhiteSpace(_password);
     }
-    public void SetPassword()
+    public void SetPassword(string password = "", bool fromFile = false)
     {
-        string TryPassword()
+        string TryPassword(string password)
         {
-            string attempt1 = Utility.Prompt("Input password: ");
-            if (string.IsNullOrWhiteSpace(attempt1)) { return attempt1; }
+            password = Utility.Prompt("Input password: ");
+            if (string.IsNullOrWhiteSpace(password)) { return password; }
 
-            string attempt2 = Utility.Prompt("Confirm password: ");
-            if (string.IsNullOrWhiteSpace(attempt2)) { return attempt2; }
+            string confirm = Utility.Prompt("Confirm password: ");
+            if (string.IsNullOrWhiteSpace(confirm)) { return confirm; }
 
-            if (attempt1 != attempt2)
+            if (password != confirm)
             {
                 Utility.Error("Passwords not matching\nTry again..");
-                return TryPassword();
+                return TryPassword(password);
             }
-            return attempt1;
+            return password;
         }
-        _password = TryPassword();
+        if (fromFile)
+        { _password = password;}
+        else
+        {_password = TryPassword(password);}
     }
     public bool TryLogin(string? email, string? password)
     {
