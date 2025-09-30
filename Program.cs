@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Reflection.Metadata;
 using System.Threading.Channels;
 using App;
 
@@ -173,12 +174,35 @@ void UpdateUsers(List<string[]> formattedLines)
 {
     foreach (string[] line in formattedLines)
     {
-        string name = line[0];
-        string email = line[1];
-        string password = line[2];
+        string email = line[0];
+        string password = line[1];
+        string name = line[2];
         User newUser = new User(name, email);
         newUser.SetPassword(password, fromFile: true);
         users.Add(newUser);
+    }
+}
+void FileWrite(string path, params string[] toExport)
+{
+    List<string[]> formattedLines = FormatFileRead();
+    bool check = false;
+    foreach (string[] line in formattedLines)
+    {
+        if (line.Contains(toExport[0]))
+        { check = true;}
+    }
+    if (!check)
+    {
+        using (StreamWriter writer = File.AppendText(path))
+        {
+            string txt = "";
+            for (int i = 0; i < toExport.Length; i++)
+            {
+                txt += toExport[i] + ",";
+            }
+            txt = txt.Substring(0, txt.Length - 1);
+            writer.WriteLine(txt);
+        }
     }
 }
 void RegisterUser(string? name, string? email)
@@ -202,6 +226,13 @@ void RegisterUser(string? name, string? email)
         else
         {
             users.Add(newUser);
+            
+            string[] userToExport = new string[3];
+            userToExport[0] = newUser.Email;
+            userToExport[1] = newUser._password;
+            userToExport[2] = newUser.Name;
+
+            FileWrite(path,toExport: userToExport);
             Utility.Success($"Account registered!\nAccount details:\n{newUser.Info(inclPassword:true)}");
         }
     }
