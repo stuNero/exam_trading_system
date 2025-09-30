@@ -6,7 +6,7 @@ class User
 {
     public string? Name;
     public string? Email;
-    string? _password;
+    public string? _password;
 
     public User(string name, string email)
     {
