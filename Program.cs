@@ -5,7 +5,8 @@ using App;
 string path = "users.csv";
 List<User> users = new List<User>();
 List<Item> items = new List<Item>();
-FileReadUsers();
+List<string[]> formatFileLines = FormatFileRead();
+UpdateUsers(formatFileLines);
 
 Menu currentMenu = Menu.None;
 User? active_user = null;
@@ -156,19 +157,27 @@ while (true)
             break;
     }
 }
-void FileReadUsers()
+List<string[]> FormatFileRead()
 {
     string[] lines = File.ReadAllLines(path);
+    List<string[]> formattedLines = new List<string[]>();
 
     foreach (string line in lines)
     {
-        string[] user = line.Split(",");
-        string name = user[0];
-        string email = user[1];
-        string password = user[2];
-        Console.WriteLine($"{name}\n{email}\npassword");
+        string[] formatLine = line.Split(",");
+        formattedLines.Add(formatLine);
+    }
+    return formattedLines;
+}
+void UpdateUsers(List<string[]> formattedLines)
+{
+    foreach (string[] line in formattedLines)
+    {
+        string name = line[0];
+        string email = line[1];
+        string password = line[2];
         User newUser = new User(name, email);
-        newUser.SetPassword(password, true);
+        newUser.SetPassword(password, fromFile: true);
         users.Add(newUser);
     }
 }
