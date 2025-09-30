@@ -2,8 +2,10 @@
 using System.Threading.Channels;
 using App;
 
+string path = "users.csv";
 List<User> users = new List<User>();
 List<Item> items = new List<Item>();
+FileReadUsers();
 
 Menu currentMenu = Menu.None;
 User? active_user = null;
@@ -79,7 +81,7 @@ while (true)
             while (true)
             {
                 Utility.GenerateMenu(title: "     ---Main Menu---",
-                                     choices: new[] { "Trade","Add item to system", "View Your Items","View all items in system", "Log out" });
+                                     choices: new[] { "Trade", "Add item to system", "View Your Items", "View all items in system", "Log out" });
                 int.TryParse(Console.ReadLine(), out int input);
                 switch (input)
                 {
@@ -92,10 +94,10 @@ while (true)
                         Console.WriteLine("     ---Add an item---");
 
                         string itemName = Utility.Prompt("Item name: ");
-                        if(string.IsNullOrWhiteSpace(itemName)) { currentMenu = Menu.Main; break; }
+                        if (string.IsNullOrWhiteSpace(itemName)) { currentMenu = Menu.Main; break; }
 
                         string itemDesc = Utility.Prompt("Item description: ");
-                        if(string.IsNullOrWhiteSpace(itemDesc)) { currentMenu = Menu.Main; break; }
+                        if (string.IsNullOrWhiteSpace(itemDesc)) { currentMenu = Menu.Main; break; }
 
                         Item newItem = new Item(itemName, itemDesc, active_user);
                         items.Add(newItem);
@@ -123,7 +125,7 @@ while (true)
                         break;
                     case 4:
                         Console.Clear();
-                        Console.WriteLine("     ---All Available Items---");
+                        Console.WriteLine("     ---Market---");
                         ctr = 0;
                         foreach (Item item in items)
                         {
@@ -139,6 +141,7 @@ while (true)
                         Console.ReadLine();
                         break;
                     case 5:
+                        Console.Clear();
                         Utility.Success($"User {active_user?.Name} logged out.");
                         active_user = null;
                         currentMenu = Menu.None;
@@ -151,6 +154,22 @@ while (true)
             Utility.Error("An unexpected error occurred. Returning to main menu.");
             currentMenu = Menu.Main;
             break;
+    }
+}
+void FileReadUsers()
+{
+    string[] lines = File.ReadAllLines(path);
+
+    foreach (string line in lines)
+    {
+        string[] user = line.Split(",");
+        string name = user[0];
+        string email = user[1];
+        string password = user[2];
+        Console.WriteLine($"{name}\n{email}\npassword");
+        User newUser = new User(name, email);
+        newUser.SetPassword(password, true);
+        users.Add(newUser);
     }
 }
 void RegisterUser(string? name, string? email)
