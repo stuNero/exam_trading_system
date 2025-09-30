@@ -22,10 +22,6 @@ class User
         }
         return txt;
     }
-    public bool HasPassword()
-    {
-        return !string.IsNullOrWhiteSpace(_password);
-    }
     public void SetPassword(string password = "", bool fromFile = false)
     {
         string TryPassword(string password)
