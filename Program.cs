@@ -3,11 +3,17 @@ using System.Reflection.Metadata;
 using System.Threading.Channels;
 using App;
 
-string path = "users.csv";
+string usersPath = "users.csv";
+string itemsPath = "items.csv";
+
 List<User> users = new List<User>();
 List<Item> items = new List<Item>();
-List<string[]> formatFileLines = FormatFileRead();
-UpdateUsers(formatFileLines);
+
+List<string[]> userFileLines = FormatFileRead(usersPath);
+UpdateUsers(userFileLines);
+
+List<string[]> itemFileLines = FormatFileRead(itemsPath);
+UpdateItems(itemFileLines);
 
 Menu currentMenu = Menu.None;
 User? active_user = null;
@@ -102,6 +108,11 @@ while (true)
                         if (string.IsNullOrWhiteSpace(itemDesc)) { currentMenu = Menu.Main; break; }
 
                         Item newItem = new Item(itemName, itemDesc, active_user);
+                        string[] itemToExport = new string[3];
+                        itemToExport[0] = itemName;
+                        itemToExport[1] = itemDesc;
+                        itemToExport[2] = active_user.Email;
+                        FileWrite(itemsPath, toExport: itemToExport);
                         items.Add(newItem);
                         Utility.Success($"Item Added: \n{newItem.Info()}");
                         break;
@@ -118,7 +129,7 @@ while (true)
 
                             if (item.Owner == active_user)
                             {
-                                Console.WriteLine($"_\n{item.Info()}\n_");
+                                Console.WriteLine($"\n{item.Info()}\n____");
                             }
                             ctr += 1;
                         }
@@ -136,7 +147,7 @@ while (true)
                             else
                             { Console.ForegroundColor = ConsoleColor.Magenta; }
 
-                            Console.WriteLine($"_\n{item.Info()}\n_");
+                            Console.WriteLine($"\n{item.Info()}\n____");
                             ctr += 1;
                         }
                         Console.ResetColor();
@@ -158,7 +169,7 @@ while (true)
             break;
     }
 }
-List<string[]> FormatFileRead()
+List<string[]> FormatFileRead(string path)
 {
     string[] lines = File.ReadAllLines(path);
     List<string[]> formattedLines = new List<string[]>();
@@ -182,9 +193,27 @@ void UpdateUsers(List<string[]> formattedLines)
         users.Add(newUser);
     }
 }
+void UpdateItems(List<string[]> formattedLines)
+{
+    foreach (string[] line in formattedLines)
+    {
+        string name = line[0];
+        string desc = line[1];
+        User owner = null;
+        foreach (User user in users)
+        {
+            if (line[2] == user.Email)
+            {
+                owner = user;
+                break;
+            }
+        }
+        items.Add(new Item(name, desc, owner));
+    }
+}
 void FileWrite(string path, params string[] toExport)
 {
-    List<string[]> formattedLines = FormatFileRead();
+    List<string[]> formattedLines = FormatFileRead(path);
     bool check = false;
     foreach (string[] line in formattedLines)
     {
@@ -211,29 +240,27 @@ void RegisterUser(string? name, string? email)
     foreach (User user in users)
     {
         if (user.Email == email)
-        {
-            check = true;
-        }
+        { check = true;}
     }
     if (!check)
     {
         User? newUser = new User(name, email);
         newUser.SetPassword();
-        if (!newUser.HasPassword())
-        {
-            Utility.Error("Password cannot be empty");
-        }
+        if (string.IsNullOrWhiteSpace(newUser._password))
+        { Utility.Error("Password cannot be empty"); }
         else
         {
             users.Add(newUser);
-            
+
             string[] userToExport = new string[3];
             userToExport[0] = newUser.Email;
             userToExport[1] = newUser._password;
             userToExport[2] = newUser.Name;
 
-            FileWrite(path,toExport: userToExport);
-            Utility.Success($"Account registered!\nAccount details:\n{newUser.Info(inclPassword:true)}");
+            FileWrite(usersPath, toExport: userToExport);
+            Utility.Success($"Account registered!\nAccount details:\n{newUser.Info(inclPassword: true)}");
         }
     }
+    else
+    { Utility.Error($"Email: '{email}' is already taken");}
 }
