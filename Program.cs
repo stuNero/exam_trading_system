@@ -17,7 +17,6 @@ UpdateItems(itemFileLines);
 
 Menu currentMenu = Menu.None;
 User? active_user = null;
-
 while (true)
 {
     Console.Clear();
@@ -85,90 +84,118 @@ while (true)
             if (!check)
             { Utility.Error("Login failed\nWrong credentials.."); }
             break;
-        case Menu.Main:
-            while (true)
+        case Menu.Trade:
+            Utility.GenerateMenu(title: "     ---Market---",
+                                    choices: new[] { "Propose Trade","Browse trade Requests","Show Market Items","Back to Main Menu" });
+            int.TryParse(Console.ReadLine(), out int input);
+            switch (input)
             {
-                Utility.GenerateMenu(title: "     ---Main Menu---",
-                                     choices: new[] { "Trade", "Add item to system", "View Your Items", "View all items in system", "Log out" });
-                int.TryParse(Console.ReadLine(), out int input);
-                switch (input)
-                {
-                    case 1:
-                        Console.WriteLine("WIP");
-                        Console.ReadLine();
-                        break;
-                    case 2:
-                        Console.Clear();
-                        Console.WriteLine("     ---Add an item---");
-
-                        string itemName = Utility.Prompt("Item name: ");
-                        if (string.IsNullOrWhiteSpace(itemName)) { currentMenu = Menu.Main; break; }
-
-                        string itemDesc = Utility.Prompt("Item description: ");
-                        if (string.IsNullOrWhiteSpace(itemDesc)) { currentMenu = Menu.Main; break; }
-
-                        Item newItem = new Item(itemName, itemDesc, active_user);
-
-                        string[] itemToExport = new string[3];
-                        itemToExport[0] = itemName;
-                        itemToExport[1] = itemDesc;
-                        itemToExport[2] = active_user.Email;
-                        FileWrite(itemsPath, toExport: itemToExport);
-
-                        items.Add(newItem);
-                        Utility.Success($"Item Added: \n{newItem.Info()}");
-                        break;
-                    case 3:
-                        Console.Clear();
-                        Console.WriteLine("     ---Your Items---");
-                        int ctr = 0;
-                        foreach (Item item in items)
+                case 1:
+                    Console.Clear();
+                    Console.WriteLine("     ---Propose a Trade---");
+                    Console.ReadLine();
+                    currentMenu = Menu.Trade;
+                    break;
+                case 2:
+                    Console.Clear();
+                    Console.WriteLine("     ---Trade Requests---");
+                    Console.ReadLine();
+                    currentMenu = Menu.Trade;
+                    break;
+                case 3:
+                    Console.Clear();
+                    Console.WriteLine("     ---Available Items---");
+                    int ctr = 0;
+                    foreach (Item item in items)
+                    {
+                        if (item.Owner != active_user)
                         {
                             if (ctr % 2 == 0)
-                            { Console.ForegroundColor = ConsoleColor.Cyan; }
-                            else
-                            { Console.ForegroundColor = ConsoleColor.Magenta; }
-
-                            if (item.Owner == active_user)
-                            {
-                                Console.WriteLine($"\n{item.Info()}\n____");
-                            }
-                            ctr += 1;
-                        }
-                        Console.ResetColor();
-                        Console.ReadLine();
-                        break;
-                    case 4:
-                        Console.Clear();
-                        Console.WriteLine("     ---Market---");
-                        ctr = 0;
-                        foreach (Item item in items)
-                        {
-                            if (ctr % 2 == 0)
-                            { Console.ForegroundColor = ConsoleColor.Cyan; }
-                            else
-                            { Console.ForegroundColor = ConsoleColor.Magenta; }
+                                { Console.ForegroundColor = ConsoleColor.Cyan; }
+                                else
+                                { Console.ForegroundColor = ConsoleColor.Magenta; }
 
                             Console.WriteLine($"\n{item.Info()}\n____");
                             ctr += 1;
                         }
-                        Console.ResetColor();
-                        Console.ReadLine();
-                        break;
-                    case 5:
-                        Console.Clear();
-                        Utility.Success($"User {active_user?.Name} logged out.");
-                        active_user = null;
-                        currentMenu = Menu.None;
-                        break;
-                }
-                break;
-            }
+                    }
+                    Console.ResetColor();
+                    Console.ReadLine();
+                    currentMenu = Menu.Trade;
+                    break;
+                case 4:
+                    currentMenu = Menu.Main;
+                    break;
+                default:
+                    Utility.Error("An unexpected error occurred. Returning to menu.");
+                    currentMenu = Menu.Trade;
+                    break;
+            }       
             break;
+        case Menu.Main:
+            Utility.GenerateMenu(title: "     ---Main Menu---",
+                                    choices: new[] { "Trade", "Add Item to Market", "View Your Items","Log out" });
+            int.TryParse(Console.ReadLine(), out input);
+            switch (input)
+            {
+                case 1:
+                    currentMenu = Menu.Trade;
+                    break;
+                case 2:
+                    Console.Clear();
+                    Console.WriteLine("     ---Add an item---");
+
+                    string itemName = Utility.Prompt("Item name: ");
+                    if (string.IsNullOrWhiteSpace(itemName)) { currentMenu = Menu.Main; break; }
+
+                    string itemDesc = Utility.Prompt("Item description: ");
+                    if (string.IsNullOrWhiteSpace(itemDesc)) { currentMenu = Menu.Main; break; }
+
+                    Item newItem = new Item(itemName, itemDesc, active_user);
+
+                    string[] itemToExport = new string[3];
+                    itemToExport[0] = itemName;
+                    itemToExport[1] = itemDesc;
+                    itemToExport[2] = active_user.Email;
+                    FileWrite(itemsPath, toExport: itemToExport);
+
+                    items.Add(newItem);
+                    Utility.Success($"Item Added: \n{newItem.Info()}");
+                    currentMenu = Menu.Main;
+                    break;
+                case 3:
+                    Console.Clear();
+                    Console.WriteLine("     ---Your Items---");
+                    int ctr = 0;
+                    foreach (Item item in items)
+                    {
+                        if (ctr % 2 == 0)
+                        { Console.ForegroundColor = ConsoleColor.Cyan; }
+                        else
+                        { Console.ForegroundColor = ConsoleColor.Magenta; }
+
+                        if (item.Owner == active_user)
+                        {
+                            Console.WriteLine($"\n{item.Info()}\n____");
+                        }
+                        ctr += 1;
+                    }
+                    Console.ResetColor();
+                    Console.ReadLine();
+                    currentMenu = Menu.Main;
+                    break;
+                case 4:
+                    Console.Clear();
+                    Utility.Success($"User {active_user?.Name} logged out.");
+                    active_user = null;
+                    currentMenu = Menu.None;
+                    break;
+            }
+                break;
         default:
             Utility.Error("An unexpected error occurred. Returning to main menu.");
             currentMenu = Menu.Main;
-            break;
+        break;
     }
 }
 List<string[]> FormatFileRead(string path)
