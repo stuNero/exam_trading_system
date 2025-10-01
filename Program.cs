@@ -108,11 +108,13 @@ while (true)
                         if (string.IsNullOrWhiteSpace(itemDesc)) { currentMenu = Menu.Main; break; }
 
                         Item newItem = new Item(itemName, itemDesc, active_user);
+
                         string[] itemToExport = new string[3];
                         itemToExport[0] = itemName;
                         itemToExport[1] = itemDesc;
                         itemToExport[2] = active_user.Email;
                         FileWrite(itemsPath, toExport: itemToExport);
+
                         items.Add(newItem);
                         Utility.Success($"Item Added: \n{newItem.Info()}");
                         break;
@@ -171,13 +173,20 @@ while (true)
 }
 List<string[]> FormatFileRead(string path)
 {
+    if (!File.Exists(path))
+    {
+        File.WriteAllText(path, "");
+    }
     string[] lines = File.ReadAllLines(path);
     List<string[]> formattedLines = new List<string[]>();
 
     foreach (string line in lines)
     {
-        string[] formatLine = line.Split(",");
-        formattedLines.Add(formatLine);
+        if (!string.IsNullOrWhiteSpace(line))
+        {
+            string[] formatLine = line.Split(",");
+            formattedLines.Add(formatLine);
+        }
     }
     return formattedLines;
 }
