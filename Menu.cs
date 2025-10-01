@@ -6,4 +6,6 @@ enum Menu
     Main,
     Login,
     RegisterAccount,
+    Trade,
+    
 }
