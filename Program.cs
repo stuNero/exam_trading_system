@@ -1,19 +1,27 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Net.Http.Headers;
 using System.Reflection.Metadata;
+using System.Runtime.InteropServices;
+using System.Security.AccessControl;
 using System.Threading.Channels;
 using App;
 
 string usersPath = "users.csv";
 string itemsPath = "items.csv";
+string tradesPath = "trades.csv";
 
-List<User> users = new List<User>();
-List<Item> items = new List<Item>();
+List<User>  users   = new List<User>();
+List<Item>  items   = new List<Item>();
+List<Trade> trades  = new List<Trade>();
 
 List<string[]> userFileLines = FormatFileRead(usersPath);
 UpdateUsers(userFileLines);
 
 List<string[]> itemFileLines = FormatFileRead(itemsPath);
 UpdateItems(itemFileLines);
+
+List<string[]> tradeFileLines = FormatFileRead(tradesPath);
+UpdateTrades(tradeFileLines);
 
 Menu currentMenu = Menu.None;
 User? active_user = null;
@@ -93,12 +101,108 @@ while (true)
                 case 1:
                     Console.Clear();
                     Console.WriteLine("     ---Propose a Trade---");
-                    Console.ReadLine();
+
+                    Console.WriteLine("Who do you want to trade with?");
+                    Console.WriteLine("________________________");
+                    for (int i = 0; i < users.Count; i++)
+                    {
+                        if (users[i] != active_user)
+                        {
+                            Console.WriteLine($"\n[{i}] \n{users[i].Info()}\n________________________");
+                        }
+                    }
+                    Console.Write("Input user's list number: ");
+                    int.TryParse(Console.ReadLine(), out choice);
+                    
+                    User? tradePartner = users[choice];
+                    List<Item>? tradeItems = new List<Item>();
+                    while (true)
+                    {
+                        Console.WriteLine(tradePartner.Name + "'s items:");
+                        foreach (Item? item in items)
+                        {
+                            if (item.Owner == tradePartner && !tradeItems.Contains(item) && item.Available)
+                            {
+                                Console.WriteLine("\n-" + item.Name);
+                            }
+                            
+                        }
+                        string? itemName = Utility.Prompt("Name of item(s) you want: ", clear: false);
+                        if (string.IsNullOrWhiteSpace(itemName))
+                        { currentMenu = Menu.Trade; break; }
+
+                        foreach (Item? item in items)
+                        {
+                            if (item.Name.ToLower() == itemName.ToLower() && item.Owner == tradePartner)
+                            {
+                                tradeItems.Add(item);
+                                break;
+                            }
+                        }
+                    }
+                    Console.Write("Do you want to give items in this trade? (yes/no)");
+                    string? choice1 = Console.ReadLine();
+                    if (choice1.ToLower() == "yes")
+                    {
+                        bool giveItem = true;
+                        Console.WriteLine("Which item?\n");
+                        while (giveItem)
+                        {
+                            foreach (Item item in items)
+                            {
+                                if (item.Owner == active_user)
+                                {
+                                    Console.WriteLine("\n-" + item.Name);
+                                }
+                                string itemName = Utility.Prompt("Item name: ");
+                                if (string.IsNullOrWhiteSpace(itemName))
+                                {
+                                    currentMenu = Menu.Trade;
+                                    giveItem = false;
+                                    break;
+                                }
+                                tradeItems.Add(item);
+                            }
+                        }
+                    }
+                    if (tradeItems.Count() != 0)
+                    {
+                        Trade trade = new Trade(active_user, tradePartner, tradeItems);
+                        List<string> exportTrade = new List<string>();
+                        exportTrade.Add(active_user.Email);
+                        exportTrade.Add(tradePartner.Email);
+                        exportTrade.Add(trade.TradeState.ToString());
+
+                        foreach (Item item in tradeItems)
+                        {
+                            exportTrade.Add(item.Name);
+                        }
+                        string[] exportTradeArray = exportTrade.ToArray();
+                        FileWrite(tradesPath, toExport: exportTradeArray);
+                        foreach (Item item in items)
+                        {
+                            if (tradeItems.Contains(item))
+                            {
+                                item.Available = false;
+                            }
+                        }
+                        Utility.Success("Trade request sent!");
+                    }
+                    else
+                    {
+                        Utility.Error("No items selected to be traded");
+                    }
                     currentMenu = Menu.Trade;
                     break;
                 case 2:
                     Console.Clear();
-                    Console.WriteLine("     ---Trade Requests---");
+                    foreach (Trade trade in trades)
+                    {
+                        if (trade.Reciever == active_user || trade.Sender == active_user)
+                        {
+                            Console.WriteLine(trade.Info());
+                        }
+                    }
                     Console.ReadLine();
                     currentMenu = Menu.Trade;
                     break;
@@ -235,7 +339,7 @@ void UpdateItems(List<string[]> formattedLines)
     {
         string name = line[0];
         string desc = line[1];
-        User owner = null;
+        User? owner = null;
         foreach (User user in users)
         {
             if (line[2] == user.Email)
@@ -245,6 +349,43 @@ void UpdateItems(List<string[]> formattedLines)
             }
         }
         items.Add(new Item(name, desc, owner));
+    }
+}
+void UpdateTrades(List<string[]> formattedLines)
+{
+    foreach (string[] line in formattedLines)
+    {
+        List<Item> tradeItems = new List<Item>();
+
+        User[] traders = new User[2];
+
+        string senderEmail = line[0];
+        string recieverEmail = line[1];
+        string tradeState = line[2];
+        foreach (User user in users)
+        {
+            if (user.Email == senderEmail)
+            {
+                traders[0] = user;
+            }
+            if (user.Email == recieverEmail)
+            {
+                traders[1] = user;
+            }
+        }
+        for (int i = 3; i < line.Length; i++)
+        {
+            foreach (Item item in items)
+                {
+                    if (line[i] == item.Name)
+                    {
+                        tradeItems.Add(item);
+                    }
+                }
+        }
+        Trade newTrade = new Trade(traders[0], traders[1], tradeItems);
+        newTrade.TradeState = (TradeStatus)Enum.Parse(typeof(TradeStatus), tradeState);
+        trades.Add(newTrade);
     }
 }
 void FileWrite(string path, params string[] toExport)

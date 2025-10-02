@@ -16,9 +16,10 @@ abstract class Utility
         Console.WriteLine(msg);
         Console.ResetColor();
     }
-    public static string Prompt(string input)
+    public static string Prompt(string input, bool clear = true)
     {
-        Console.Clear();
+        if (clear)
+        { Console.Clear();}
         Console.ForegroundColor = ConsoleColor.DarkGray;
         Console.WriteLine("\n(Empty line and 'ENTER' to cancel..)");
         Console.ForegroundColor = ConsoleColor.DarkYellow;

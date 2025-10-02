@@ -8,13 +8,13 @@ class Trade
     public User? Sender;
     public User? Reciever;
     public List<Item>? Items;
-    public TradeStatus? TradeStat;
+    public TradeStatus? TradeState;
     public Trade(User sender, User reciever, List<Item> items)
     {
         Sender = sender;
         Reciever = reciever;
         Items = items;
-        TradeStat = TradeStatus.Pending;
+        TradeState = TradeStatus.Pending;
     }
     public string Info()
     {
@@ -27,7 +27,7 @@ class Trade
             {
                 senderItems += $"\n{item.Name}";
             }
-            if (item.Owner == Reciever)
+            else if (item.Owner == Reciever)
             {
                 recieverItems += $"\n{item.Name}";
             }
