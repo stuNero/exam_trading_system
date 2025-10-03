@@ -4,14 +4,14 @@ abstract class Utility
 {
     public static void GenerateMenu(string title = "Choose a Menu Option:", params string[] choices)
     {
-        string msg = "________________________\n";
+        string msg = "_______________________________\n";
         msg += title + "\n";
 
         for (int i = 0; i < choices.Length; i++)
         {
-            msg += $"[{i + 1}] [{choices[i]}]\n";
+            msg += $"\n[{i + 1}] [{choices[i]}]\n";
         }
-        msg += "________________________";
+        msg += "_______________________________";
         Console.ForegroundColor = ConsoleColor.DarkYellow;
         Console.WriteLine(msg);
         Console.ResetColor();
@@ -24,6 +24,7 @@ abstract class Utility
         Console.WriteLine("\n(Empty line and 'ENTER' to cancel..)");
         Console.ForegroundColor = ConsoleColor.DarkYellow;
         Console.Write(input);
+        Console.ResetColor();
         return Console.ReadLine();
     }
     public static void Error(string msg)
