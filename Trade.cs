@@ -5,34 +5,32 @@ namespace App;
 
 class Trade
 {
-    public User? Sender;
-    public User? Reciever;
+    public User Caller;
+    public User Responder;
     public List<Item>? Items;
     public TradeStatus? TradeState;
-    public Trade(User sender, User reciever, List<Item> items)
+    public Trade(User caller, User responder, List<Item> items)
     {
-        Sender = sender;
-        Reciever = reciever;
+        Caller = caller;
+        Responder = responder;
         Items = items;
         TradeState = TradeStatus.Pending;
     }
     public string Info()
     {
-        string senderItems = "";
-        string recieverItems = "";
-        senderItems += Sender.Name + "'s items: ";
+        string callerItems = $"{Caller.Name}'s items: ";
+        string responderItems = $"{Responder.Name}'s items: ";
         foreach (Item item in Items)
         {
-            if (item.Owner == Sender)
+            if (item.Owner == Caller)
             {
-                senderItems += $"\n{item.Name}";
+                callerItems += $"\n{item.Name}";
             }
-            else if (item.Owner == Reciever)
+            else if (item.Owner == Responder)
             {
-                recieverItems += $"\n{item.Name}";
+                responderItems += $"\n{item.Name}";
             }
         }
-
-        return senderItems + "\n" + recieverItems + $"\nStatus: [{TradeState}]";
+        return callerItems + "\n" + responderItems + $"\nStatus: [{TradeState}]";
     }
 }
