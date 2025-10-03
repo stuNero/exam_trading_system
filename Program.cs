@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
@@ -87,6 +88,7 @@ while (true)
 
                     Console.WriteLine("Who do you want to trade with?");
                     Console.WriteLine("________________________");
+                    
                     for (int i = 0; i < ts.users.Count; i++)
                     {
                         if (ts.users[i] != active_user)
@@ -94,8 +96,12 @@ while (true)
                             Console.WriteLine($"\n[{i}] \n{ts.users[i].Info()}\n________________________");
                         }
                     }
-                    Console.Write("Input user's list number: ");
-                    int.TryParse(Console.ReadLine(), out choice);
+                    string inputString = Utility.Prompt("Input user's list number: ",clear:false);
+                    if (string.IsNullOrWhiteSpace(inputString))
+                    {
+                        break;
+                    }
+                        int.TryParse(inputString, out choice);
 
                     User? tradePartner = ts.users[choice];
                     List<Item>? tradeItems = new List<Item>();
@@ -104,7 +110,7 @@ while (true)
                         Console.WriteLine(tradePartner.Name + "'s items:");
                         foreach (Item? item in ts.items)
                         {
-                            if (item.Owner == tradePartner && !tradeItems.Contains(item) && item.Available)
+                            if (item.Owner == tradePartner && !tradeItems.Contains(item))
                             {
                                 Console.WriteLine("\n-" + item.Name);
                             }
@@ -133,7 +139,7 @@ while (true)
                         {
                             foreach (Item item in ts.items)
                             {
-                                if (item.Owner == active_user && item.Available)
+                                if (item.Owner == active_user && !tradeItems.Contains(item))
                                 {
                                     Console.WriteLine("\n-" + item.Name);
                                 }
@@ -149,7 +155,6 @@ while (true)
                             {
                                 if (item.Name == itemName)
                                 {
-                                    item.Available = false;
                                     tradeItems.Add(item);
                                 }
                             }
@@ -157,25 +162,12 @@ while (true)
                     }
                     if (tradeItems.Count() != 0)
                     {
+                        Debug.Assert(active_user != null);
                         Trade trade = new Trade(active_user, tradePartner, tradeItems);
-                        List<string> exportTrade = new List<string>();
-                        exportTrade.Add(active_user.Email);
-                        exportTrade.Add(tradePartner.Email);
-                        exportTrade.Add(trade.TradeState.ToString());
 
-                        foreach (Item item in tradeItems)
-                        {
-                            exportTrade.Add(item.Name);
-                        }
-                        string[] exportTradeArray = exportTrade.ToArray();
-                        ts.FileWrite(ts.tradesPath, toExport: exportTradeArray);
                         ts.trades.Add(trade);
-                        foreach (Item item in ts.items)
-                        {
-                            if (tradeItems.Contains(item))
-                            { item.Available = false; }
-                        }
-                        Utility.Success("'Request sent.\nTime is money, friend!'");
+                        ts.FileWriteTrades();
+                        Utility.Success("'Request sent.'");
                     }
                     else
                     { Utility.Error("No items selected to be traded"); }
@@ -189,13 +181,15 @@ while (true)
                     switch (input)
                     {
                         case 1: // Sent
+                            Console.Clear();
+                            Utility.GenerateMenu(title:"     ---Sent Requests---");
                             check = false;
                             for (int i = 0; i < ts.trades.Count; i++)
                             {
-                                if (ts.trades[i].Caller == active_user)
+                                if (ts.trades[i].Caller == active_user && ts.trades[i].TradeState == TradeStatus.Pending)
                                 {
                                     check = true;
-                                    Console.WriteLine($"[{i}]\n" + ts.trades[i].Info());
+                                    Console.WriteLine($"[{i}] Request to {ts.trades[i].Responder.Name}\n" + ts.trades[i].Info() + "\n_________________");
                                 }
                             }
                             if (!check)
@@ -203,16 +197,18 @@ while (true)
                                 Utility.Error("No requests in inbox");
                                 break;
                             }
-                            Console.ReadLine();
+                            Utility.Success("");
                             break;
                         case 2: // Recieved
+                            Console.Clear();
+                            Utility.GenerateMenu("     ---Recieved Requests---");
                             check = false;
                             for (int i = 0; i < ts.trades.Count; i++)
                             {
                                 if (ts.trades[i].Responder == active_user && ts.trades[i].TradeState == TradeStatus.Pending)
                                 {
                                     check = true;
-                                    Console.WriteLine($"\n[{i}]\n" + ts.trades[i].Info());
+                                    Console.WriteLine($"[{i}] Request from {ts.trades[i].Caller.Name}\n" + ts.trades[i].Info() + "\n_________________");
                                 }
                             }
                             if (!check)
@@ -220,13 +216,13 @@ while (true)
                                 Utility.Error("No requests in inbox");
                                 break;
                             }
-                            string answer = Utility.Prompt("Approve or deny requests:\n'<Request Number> [Approve/Deny]'",clear:false);
+                            string answer = Utility.Prompt("Approve or deny requests:\n'<Request Number> ['Approve'/'Deny']'\nEXAMPLE: '1 Approve'\n",clear:false);
                             if (string.IsNullOrWhiteSpace(answer))
                             { break;}
                             string[] answerArray = answer.Split(" ");
                             if (answerArray.Length < 2)
                             {
-                                Utility.Error("Input seems incorrect, did you follow the pattern: \n'<Request Number> [Approve/Deny]'");
+                                Utility.Error("Input seems incorrect, did you follow the pattern: \n'<Request Number> ['Approve'/'Deny']'");
                                 break;
                             }
                             int.TryParse(answerArray[0], out choice);
@@ -245,25 +241,24 @@ while (true)
                                             if (item.Owner == ts.trades[choice].Caller)
                                             {
                                                 item.Owner = ts.trades[choice].Responder;
-                                            }
-                                            else if (item.Owner == ts.trades[choice].Responder)
-                                            {
-                                                item.Owner = ts.trades[choice].Caller;
+                                                Utility.Success("Request Approved\n'Time is money, friend!'");
                                             }
                                         }
                                     }
                                 }
-                                else if (answerArray[0].ToLower() == "deny")
+                                else if (answerArray[1].ToLower() == "deny")
                                 {
                                     ts.trades[choice].TradeState = TradeStatus.Denied;
                                     foreach (Item item in ts.trades[choice].Items)
                                     {
-                                        item.Available = true;
+                                        break;
                                     }
+                                    Utility.Success("Request Denied\n'Don't waste my time!'");
                                 }
-                            Console.ReadLine();
                             break;
                         case 3: // Completed Requests
+                            Console.Clear();
+                            Utility.GenerateMenu("     ---Completed Requests---");
                             check = false;
                             int ctr1 = 0;
                             foreach (Trade trade in ts.trades)
@@ -282,12 +277,13 @@ while (true)
                                     }
                                 }
                             }
+                            Console.ResetColor();
                             if (!check)
                             {
                                 Utility.Error("No Completed Requests..");
                                 break;
                             }
-                            Console.ReadLine();
+                            Utility.Success("");
                             break;
                         case 4: // Quit
                         default:
@@ -300,7 +296,7 @@ while (true)
                     int ctr = 0;
                     foreach (Item item in ts.items)
                     {
-                        if (item.Owner != active_user && item.Available)
+                        if (item.Owner != active_user)
                         {
                             if (ctr % 2 == 0)
                             { Console.ForegroundColor = ConsoleColor.Cyan; }
@@ -311,7 +307,7 @@ while (true)
                         }
                     }
                     Console.ResetColor();
-                    Console.ReadLine();
+                    Utility.Success("");
                     break;
                 case 4:
                     currentMenu = Menu.Main;
@@ -322,7 +318,7 @@ while (true)
             }
             break;
         case Menu.Main:
-            Utility.GenerateMenu(title: "     ---Main Menu---\nCurrent logged in user: " + active_user.Name,
+            Utility.GenerateMenu(title: "     ---Main Menu---\nLogged in as: " + active_user.Name,
                                     choices: new[] { "Trade", "Add Item to Market", "View Your Items", "Log out" });
             int.TryParse(Console.ReadLine(), out input);
             switch (input)
@@ -341,14 +337,9 @@ while (true)
                     if (string.IsNullOrWhiteSpace(itemDesc)) { currentMenu = Menu.Main; break; }
 
                     Item newItem = new Item(itemName, itemDesc, active_user);
-
-                    string[] itemToExport = new string[3];
-                    itemToExport[0] = itemName;
-                    itemToExport[1] = itemDesc;
-                    itemToExport[2] = active_user.Email;
-                    ts.FileWrite(ts.itemsPath, toExport: itemToExport);
-
                     ts.items.Add(newItem);
+
+                    ts.FileWriteItems();
                     Utility.Success($"Item Added: \n{newItem.Info()}");
                     currentMenu = Menu.Main;
                     break;
@@ -370,7 +361,7 @@ while (true)
                         ctr += 1;
                     }
                     Console.ResetColor();
-                    Console.ReadLine();
+                    Utility.Success("");
                     currentMenu = Menu.Main;
                     break;
                 case 4:
