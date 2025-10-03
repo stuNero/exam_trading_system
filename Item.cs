@@ -16,6 +16,13 @@ class Item
     }
     public string Info()
     {
-        return $"[Name]: '{Name}'\n[Description]:\n'{Description}'\n[Owner]: '{Owner.Name}'";
+        if (Owner != null)
+        {
+            return $"[Name]: '{Name}'\n[Description]:\n'{Description}'\n[Owner]: '{Owner.Name}'";
+        }
+        else
+        {
+            return $"NO OWNER FOUND FOR ITEM {Name}";
+        }
     }
 }

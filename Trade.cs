@@ -7,8 +7,8 @@ class Trade
 {
     public User Caller;
     public User Responder;
-    public List<Item>? Items;
-    public TradeStatus? TradeState;
+    public List<Item> Items;
+    public TradeStatus TradeState;
     public Trade(User caller, User responder, List<Item> items)
     {
         Caller = caller;
@@ -18,8 +18,8 @@ class Trade
     }
     public string Info()
     {
-        string callerItems = $"{Caller.Name}'s items: ";
-        string responderItems = $"{Responder.Name}'s items: ";
+        string callerItems      = $"{Caller.Name}'s items: ";
+        string responderItems   = $"{Responder.Name}'s items: ";
         foreach (Item item in Items)
         {
             if (item.Owner == Caller)

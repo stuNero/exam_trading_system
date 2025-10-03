@@ -47,7 +47,6 @@ abstract class Utility
             Console.ReadLine();
         }
         Console.ResetColor();
-        Thread.Sleep(1000);
         Console.Clear();
     }
 }
