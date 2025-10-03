@@ -19,6 +19,11 @@ class TradeSystem
 
         List<string[]> tradeFileLines = FormatFileRead(tradesPath);
         UpdateTrades(tradeFileLines);
+
+
+        FileWriteUsers();
+        FileWriteItems();
+        FileWriteTrades();
     }
 
     public List<string[]> FormatFileRead(string path)
@@ -39,6 +44,39 @@ class TradeSystem
             }
         }
         return formattedLines;
+    }
+    
+    public void FileWriteUsers()
+    {
+        string txt = "";
+        foreach (User user in users)
+        {
+            txt += $"{user.Email},{user._password},{user.Name}\n";
+        }
+        File.WriteAllText(usersPath, txt);
+    }
+    public void FileWriteItems()
+    {
+        string txt = "";
+        foreach (Item item in items)
+        {
+            txt += $"{item.Name},{item.Description},{item.Owner.Email}\n";
+        }
+        File.WriteAllText(itemsPath, txt);
+    }
+    public void FileWriteTrades()
+    {
+        string txt = "";
+        foreach (Trade trade in trades)
+        {
+            txt += $"{trade.Caller.Email},{trade.Responder.Email},{trade.TradeState.ToString()}";
+            foreach (Item item in trade.Items)
+            {
+                txt += $",{item.Name}";
+            }
+            txt += "\n";
+        }
+        File.WriteAllText(tradesPath, txt);
     }
     public void UpdateUsers(List<string[]> formattedLines)
     {
@@ -107,29 +145,6 @@ class TradeSystem
             trades.Add(newTrade);
         }
     }
-    public void FileWrite(string path, params string[] toExport)
-    {
-        List<string[]> formattedLines = FormatFileRead(path);
-        bool check = false;
-        foreach (string[] line in formattedLines)
-        {
-            if (line.Contains(toExport[0]))
-            { check = true; }
-        }
-        if (!check)
-        {
-            using (StreamWriter writer = File.AppendText(path))
-            {
-                string txt = "";
-                for (int i = 0; i < toExport.Length; i++)
-                {
-                    txt += toExport[i] + ",";
-                }
-                txt = txt.Substring(0, txt.Length - 1);
-                writer.WriteLine(txt);
-            }
-        }
-    }
     public void RegisterUser(string? name, string? email)
     {
         bool check = false;
@@ -147,13 +162,7 @@ class TradeSystem
             else
             {
                 users.Add(newUser);
-
-                string[] userToExport = new string[3];
-                userToExport[0] = newUser.Email;
-                userToExport[1] = newUser._password;
-                userToExport[2] = newUser.Name;
-
-                FileWrite(usersPath, toExport: userToExport);
+                FileWriteUsers();
                 Utility.Success($"Account registered!\nAccount details:\n{newUser.Info(inclPassword: true)}");
             }
         }
