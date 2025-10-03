@@ -24,13 +24,14 @@ class Trade
         {
             if (item.Owner == Caller)
             {
-                callerItems += $"\n{item.Name}";
+                callerItems += $"\n - {item.Name}\n";
             }
             else if (item.Owner == Responder)
             {
-                responderItems += $"\n{item.Name}";
+                responderItems += $"\n - {item.Name}\n";
             }
         }
-        return callerItems + "\n" + responderItems + $"\nStatus: [{TradeState}]";
+        return callerItems + "\n" +
+               responderItems + $"\nStatus: [{TradeState}]";
     }
 }
