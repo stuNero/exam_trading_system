@@ -33,6 +33,6 @@ class Trade
             }
         }
 
-        return senderItems + "\n" + recieverItems;
+        return senderItems + "\n" + recieverItems + $"\nStatus: [{TradeState}]";
     }
 }
