@@ -1,5 +1,7 @@
 namespace App;
-
+/// <summary>
+/// Represents the main programs objects, User, Item, Trade lists and methods for manipulating these.
+/// </summary>
 class TradeSystem
 {
     public string usersPath = "users.csv";
@@ -8,7 +10,7 @@ class TradeSystem
     public List<User> users = new List<User>();
     public List<Item> items = new List<Item>();
     public List<Trade> trades = new List<Trade>();
-
+    
     public TradeSystem()
     {
         List<string[]> userFileLines = FormatFileRead(usersPath);
@@ -25,7 +27,11 @@ class TradeSystem
         FileWriteItems();
         FileWriteTrades();
     }
-
+    /// <summary>
+    /// Formats .csv files lines of text into string arrays in a list
+    /// </summary>
+    /// <param name="path">file directory</param>
+    /// <returns>List of all lines of text in the file as string arrays</returns>
     public List<string[]> FormatFileRead(string path)
     {
         if (!File.Exists(path))
@@ -45,7 +51,9 @@ class TradeSystem
         }
         return formattedLines;
     }
-    
+    /// <summary>
+    /// Writes all User's from List users to .csv file in .csv format
+    /// </summary>
     public void FileWriteUsers()
     {
         string txt = "";
@@ -55,6 +63,9 @@ class TradeSystem
         }
         File.WriteAllText(usersPath, txt);
     }
+    /// <summary>
+    /// Writes all Item's from List items to .csv file in .csv format
+    /// </summary>
     public void FileWriteItems()
     {
         string txt = "";
@@ -64,6 +75,9 @@ class TradeSystem
         }
         File.WriteAllText(itemsPath, txt);
     }
+    /// <summary>
+    /// Writes all Trade's from List trades to .csv file in .csv format
+    /// </summary>
     public void FileWriteTrades()
     {
         string txt = "";
@@ -78,6 +92,10 @@ class TradeSystem
         }
         File.WriteAllText(tradesPath, txt);
     }
+    /// <summary>
+    /// Takes in List of lines of User variables as string arrays and adds to users list
+    /// </summary>
+    /// <param name="formattedLines">formatted lines of text from the FileWrite method</param>
     public void UpdateUsers(List<string[]> formattedLines)
     {
         foreach (string[] line in formattedLines)
@@ -90,6 +108,10 @@ class TradeSystem
             users.Add(newUser);
         }
     }
+    /// <summary>   
+    /// Takes in List of lines of Item variables as string arrays and adds to items list
+    /// </summary>
+    /// <param name="formattedLines">formatted lines of text from the FileWrite method</param>
     public void UpdateItems(List<string[]> formattedLines)
     {
         foreach (string[] line in formattedLines)
@@ -108,6 +130,10 @@ class TradeSystem
             items.Add(new Item(name, desc, owner));
         }
     }
+    /// <summary>
+    /// Takes in List of lines of Trade variables as string arrays and adds to trades list
+    /// </summary>
+    /// <param name="formattedLines">formatted lines of text from the FileWrite method</param>
     public void UpdateTrades(List<string[]> formattedLines)
     {
         foreach (string[] line in formattedLines)
@@ -145,7 +171,12 @@ class TradeSystem
             trades.Add(newTrade);
         }
     }
-    public void RegisterUser(string? name, string? email)
+    /// <summary>
+    /// Adds new User to to List users and writes to specific file 
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="email"></param>
+    public void RegisterUser(string name, string email)
     {
         bool check = false;
         foreach (User user in users)

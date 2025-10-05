@@ -1,5 +1,13 @@
 namespace App;
 
+/// <summary>
+/// Enum for menu choices
+/// - None
+/// - Main
+/// - Login
+/// - RegisterAccount
+/// - Trade
+/// </summary>
 enum Menu
 {
     None,
@@ -7,5 +15,5 @@ enum Menu
     Login,
     RegisterAccount,
     Trade,
-    
+
 }
