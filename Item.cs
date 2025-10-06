@@ -1,10 +1,13 @@
 namespace App;
 
+/// <summary>
+/// Represents an item object with name, description and an owner.
+/// </summary>
 class Item
 {
-    public string? Name;
-    public string? Description;
-    public User? Owner;
+    public string Name;
+    public string Description;
+    public User Owner;
 
     public Item(string name, string description, User owner)
     {
@@ -12,6 +15,10 @@ class Item
         Description = description;
         Owner = owner;
     }
+    /// <summary>
+    /// Formats Item variables into readable user friendly text
+    /// </summary>
+    /// <returns>returns string formatted text with Item information</returns>
     public string Info()
     {
         if (Owner != null)

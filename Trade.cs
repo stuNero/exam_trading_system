@@ -3,6 +3,15 @@ using System.Runtime.CompilerServices;
 
 namespace App;
 
+/// <summary>
+/// Represents an instance of a particular trade with the caller and responder of the trade,
+/// a list of the items to trade and what the current trade status is (Pending, Approved or Denied)
+/// </summary>
+/// <example>
+/// <code>
+/// Trade trade = new Trade(user1, user2, itemsToTrade)
+/// </code>
+/// </example>
 class Trade
 {
     public User Caller;
@@ -16,10 +25,14 @@ class Trade
         Items = items;
         TradeState = TradeStatus.Pending;
     }
+    /// <summary>
+    /// Returns formatted string of the trade's different variables. 
+    /// </summary>
+    /// <returns>Formatted string text</returns>
     public string Info()
     {
-        string callerItems      = $"{Caller.Name}'s items: ";
-        string responderItems   = $"{Responder.Name}'s items: ";
+        string callerItems = $"{Caller.Name}'s items: ";
+        string responderItems = $"{Responder.Name}'s items: ";
         foreach (Item item in Items)
         {
             if (item.Owner == Caller)
