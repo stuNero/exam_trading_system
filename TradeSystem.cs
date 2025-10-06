@@ -4,16 +4,21 @@ namespace App;
 /// </summary>
 class TradeSystem
 {
+    // Declaring directories for program information storage
     public string usersPath = "users.csv";
     public string itemsPath = "items.csv";
     public string tradesPath = "trades.csv";
+
+    // Declaring lists to be used for each class
     public List<User> users = new List<User>();
     public List<Item> items = new List<Item>();
     public List<Trade> trades = new List<Trade>();
     
     public TradeSystem()
     {
+        // Reads file, creates one if it doesn't exist
         List<string[]> userFileLines = FormatFileRead(usersPath);
+        // Updates the list based on file content
         UpdateUsers(userFileLines);
 
         List<string[]> itemFileLines = FormatFileRead(itemsPath);
@@ -21,11 +26,6 @@ class TradeSystem
 
         List<string[]> tradeFileLines = FormatFileRead(tradesPath);
         UpdateTrades(tradeFileLines);
-
-
-        FileWriteUsers();
-        FileWriteItems();
-        FileWriteTrades();
     }
     /// <summary>
     /// Formats .csv files lines of text into string arrays in a list
@@ -34,13 +34,14 @@ class TradeSystem
     /// <returns>List of all lines of text in the file as string arrays</returns>
     public List<string[]> FormatFileRead(string path)
     {
+        // if file doesn't exist, create one with path name
         if (!File.Exists(path))
         {
             File.WriteAllText(path, "");
         }
+        // reads and assigns all lines as string arrays in a list
         string[] lines = File.ReadAllLines(path);
         List<string[]> formattedLines = new List<string[]>();
-
         foreach (string line in lines)
         {
             if (!string.IsNullOrWhiteSpace(line))
@@ -100,6 +101,8 @@ class TradeSystem
     {
         foreach (string[] line in formattedLines)
         {
+            // reads each element in the array where the first or 0 is the identifying (unique) string for the object
+            // this is the same for every Update method
             string email = line[0];
             string password = line[1];
             string name = line[2];
@@ -136,6 +139,7 @@ class TradeSystem
     /// <param name="formattedLines">formatted lines of text from the FileWrite method</param>
     public void UpdateTrades(List<string[]> formattedLines)
     {
+        // For each trade in the read file
         foreach (string[] line in formattedLines)
         {
             List<Item> tradeItems = new List<Item>();
@@ -145,6 +149,8 @@ class TradeSystem
             string senderEmail = line[0];
             string recieverEmail = line[1];
             string tradeState = line[2];
+
+            // Assigns users based on their identifying email
             foreach (User user in users)
             {
                 if (user.Email == senderEmail)
@@ -156,6 +162,7 @@ class TradeSystem
                     traders[1] = user;
                 }
             }
+            // Assigns items if they correspond to those already in the system
             for (int i = 3; i < line.Length; i++)
             {
                 foreach (Item item in items)
@@ -167,6 +174,7 @@ class TradeSystem
                 }
             }
             Trade newTrade = new Trade(traders[0], traders[1], tradeItems);
+            // TradeStatus is saved as a string, enum.parse translates from string to enum value
             newTrade.TradeState = Enum.Parse<TradeStatus>(tradeState);
             trades.Add(newTrade);
         }
@@ -178,18 +186,20 @@ class TradeSystem
     /// <param name="email"></param>
     public void RegisterUser(string name, string email)
     {
+        // checks if the email is already registered
         bool check = false;
         foreach (User user in users)
         {
             if (user.Email == email)
             { check = true; }
         }
+        // if not, registering continues
         if (!check)
         {
             User? newUser = new User(name, email);
             newUser.SetPassword();
-            if (string.IsNullOrWhiteSpace(newUser._password))
-            { Utility.Error("Password cannot be empty"); }
+            if (string.IsNullOrWhiteSpace(newUser._password))   
+            { Utility.Error("Password cannot be empty"); }      
             else
             {
                 users.Add(newUser);

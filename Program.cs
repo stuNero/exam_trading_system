@@ -7,28 +7,31 @@ using System.Security.AccessControl;
 using System.Threading.Channels;
 using App;
 
+// declaring tradesystem object that stores all users, trades and items and reads/writes to file
 TradeSystem ts = new TradeSystem();
 
 Menu currentMenu = Menu.None;
+// Using a reference User object to save the active user
 User? active_user = null;
 while (true)
 {
     Console.Clear();
     switch (currentMenu)
     {
+        // Default menu
         case Menu.None:
             Utility.GenerateMenu(title: "     ---Welcome to Gadgetzan Trading---",
                                  choices: new[] { "Login", "Register Account", "Quit" });
             int.TryParse(Console.ReadLine(), out int choice);
             switch (choice)
             {
-                case 1:
+                case 1: // Login menu
                     currentMenu = Menu.Login;
                     break;
-                case 2:
+                case 2: // Register menu
                     currentMenu = Menu.RegisterAccount;
                     break;
-                case 3:
+                case 3: // Quits program
                     Environment.Exit(0);
                     break;
                 default:
@@ -38,7 +41,7 @@ while (true)
             break;
         case Menu.RegisterAccount:
             Console.WriteLine("     --Register Account--");
-
+            // uses .Prompt user input with IsnullorWhitespace for canceling 
             string name = Utility.Prompt("Enter name: ");
             if (string.IsNullOrWhiteSpace(name))
             { currentMenu = Menu.None; break; }
@@ -52,7 +55,7 @@ while (true)
             break;
         case Menu.Login:
             Console.WriteLine("     --Login-- ");
-
+            // uses .Prompt user input with IsnullorWhitespace for canceling 
             email = Utility.Prompt("Enter email: ");
             if (string.IsNullOrWhiteSpace(email))
             { currentMenu = Menu.None; break; }
@@ -88,7 +91,7 @@ while (true)
 
                     Console.WriteLine("Who do you want to trade with?");
                     Console.WriteLine("________________________");
-                    
+                    // prints all users with a number based on placement on list
                     for (int i = 0; i < ts.users.Count; i++)
                     {
                         if (ts.users[i] != active_user)
@@ -101,20 +104,21 @@ while (true)
                     {
                         break;
                     }
-                        int.TryParse(inputString, out choice);
+                    int.TryParse(inputString, out choice); // Converts users list index string to int
 
-                    User? tradePartner = ts.users[choice];
+                    User? tradePartner = ts.users[choice]; // saves users choice as an object reference based on list index
+
                     List<Item>? tradeItems = new List<Item>();
-                    while (true)
+                    
+                    while (true)    // Starts loop for user to add multiple items to trade
                     {
                         Console.WriteLine(tradePartner.Name + "'s items:");
                         foreach (Item? item in ts.items)
-                        {
+                        {   // only checks if the item isn't already in tradelist and it's the tradepartners items
                             if (item.Owner == tradePartner && !tradeItems.Contains(item))
                             {
                                 Console.WriteLine("\n-" + item.Name);
                             }
-
                         }
                         string? itemName = Utility.Prompt("Name of item(s) you want: ", clear: false);
                         if (string.IsNullOrWhiteSpace(itemName))
@@ -135,7 +139,7 @@ while (true)
                     {
                         bool giveItem = true;
                         Console.WriteLine("Which item?\n");
-                        while (giveItem)
+                        while (giveItem)    
                         {
                             foreach (Item item in ts.items)
                             {
@@ -160,9 +164,9 @@ while (true)
                             }
                         }
                     }
+                    // only make a trade if items are selected
                     if (tradeItems.Count() != 0)
                     {
-                        Debug.Assert(active_user != null);
                         Trade trade = new Trade(active_user, tradePartner, tradeItems);
 
                         ts.trades.Add(trade);
@@ -184,6 +188,7 @@ while (true)
                             Console.Clear();
                             Utility.GenerateMenu(title:"     ---Sent Requests---");
                             check = false;
+                            // Only prints trades that are pending and trade callers
                             for (int i = 0; i < ts.trades.Count; i++)
                             {
                                 if (ts.trades[i].Caller == active_user && ts.trades[i].TradeState == TradeStatus.Pending)
@@ -203,6 +208,8 @@ while (true)
                             Console.Clear();
                             Utility.GenerateMenu("     ---Recieved Requests---");
                             check = false;
+
+                            // only prints trades that are pending and is the trade responders
                             for (int i = 0; i < ts.trades.Count; i++)
                             {
                                 if (ts.trades[i].Responder == active_user && ts.trades[i].TradeState == TradeStatus.Pending)
@@ -216,45 +223,52 @@ while (true)
                                 Utility.Error("No requests in inbox");
                                 break;
                             }
+
                             string answer = Utility.Prompt("Approve or deny requests:\n'<Request Number> ['Approve'/'Deny']'\nEXAMPLE: '1 Approve'\n",clear:false);
                             if (string.IsNullOrWhiteSpace(answer))
                             { break;}
+
+                            // splits the string to 2 elements where the first should be a number and the second a string
                             string[] answerArray = answer.Split(" ");
-                            if (answerArray.Length < 2)
+                            if (answerArray.Length != 2)
                             {
                                 Utility.Error("Input seems incorrect, did you follow the pattern: \n'<Request Number> ['Approve'/'Deny']'");
                                 break;
                             }
                             int.TryParse(answerArray[0], out choice);
+
                             if (ts.trades[choice].TradeState != TradeStatus.Pending)
                             {
                                 Utility.Error("Chosen request is already resolved");
                                 break;
                             }
                             if (answerArray[1].ToLower() == "approve")
+                            {
+                                ts.trades[choice].TradeState = TradeStatus.Approved;
+                                // If approved, items switches owners
+                                foreach (Item item in ts.items)
                                 {
-                                    ts.trades[choice].TradeState = TradeStatus.Approved;
-                                    foreach (Item item in ts.items)
+                                    if (ts.trades[choice].Items.Contains(item))
                                     {
-                                        if (ts.trades[choice].Items.Contains(item))
+                                        if (item.Owner == ts.trades[choice].Caller)
                                         {
-                                            if (item.Owner == ts.trades[choice].Caller)
-                                            {
-                                                item.Owner = ts.trades[choice].Responder;
-                                                Utility.Success("Request Approved\n'Time is money, friend!'");
-                                            }
+                                            item.Owner = ts.trades[choice].Responder;
+                                        }
+                                        else if (item.Owner == ts.trades[choice].Responder)
+                                        {
+                                            item.Owner = ts.trades[choice].Caller;
                                         }
                                     }
                                 }
-                                else if (answerArray[1].ToLower() == "deny")
-                                {
-                                    ts.trades[choice].TradeState = TradeStatus.Denied;
-                                    foreach (Item item in ts.trades[choice].Items)
-                                    {
-                                        break;
-                                    }
-                                    Utility.Success("Request Denied\n'Don't waste my time!'");
-                                }
+                                Utility.Success("Request Approved\n'Time is money, friend!'");
+                            }
+                            else if (answerArray[1].ToLower() == "deny")
+                            {
+                                ts.trades[choice].TradeState = TradeStatus.Denied;
+                                Utility.Success("Request Denied\n'Don't waste my time!'");
+                            }
+                            ts.FileWriteTrades();
+                            ts.FileWriteItems();
                             break;
                         case 3: // Completed Requests
                             Console.Clear();
@@ -317,7 +331,7 @@ while (true)
                     break;
             }
             break;
-        case Menu.Main:
+        case Menu.Main: 
             Utility.GenerateMenu(title: "     ---Main Menu---\nLogged in as: " + active_user.Name,
                                     choices: new[] { "Trade", "Add Item to Market", "View Your Items", "Log out" });
             int.TryParse(Console.ReadLine(), out input);
@@ -329,7 +343,7 @@ while (true)
                 case 2:
                     Console.Clear();
                     Console.WriteLine("     ---Add an item---");
-
+                    // uses .Prompt user input with IsnullorWhitespace for canceling 
                     string itemName = Utility.Prompt("Item name: ");
                     if (string.IsNullOrWhiteSpace(itemName)) { currentMenu = Menu.Main; break; }
 
@@ -338,7 +352,7 @@ while (true)
 
                     Item newItem = new Item(itemName, itemDesc, active_user);
                     ts.items.Add(newItem);
-
+                    // overwrites file with new items added to items list
                     ts.FileWriteItems();
                     Utility.Success($"Item Added: \n{newItem.Info()}");
                     currentMenu = Menu.Main;
@@ -349,6 +363,7 @@ while (true)
                     int ctr = 0;
                     foreach (Item item in ts.items)
                     {
+                        // cycles colors for better visibility in print
                         if (ctr % 2 == 0)
                         { Console.ForegroundColor = ConsoleColor.Cyan; }
                         else

@@ -14,7 +14,6 @@ abstract class Utility
     {
         string msg = "_______________________________\n";
         msg += title + "\n";
-
         for (int i = 0; i < choices.Length; i++)
         {
             msg += $"\n[{i + 1}] [{choices[i]}]\n";

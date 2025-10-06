@@ -33,6 +33,7 @@ class Trade
     {
         string callerItems = $"{Caller.Name}'s items: ";
         string responderItems = $"{Responder.Name}'s items: ";
+        // Structures output as a list of items for each owner
         foreach (Item item in Items)
         {
             if (item.Owner == Caller)
@@ -45,6 +46,7 @@ class Trade
             }
         }
         return callerItems + "\n" +
-               responderItems + $"\nStatus: [{TradeState}]";
+               responderItems
+               + $"\nStatus: [{TradeState}]";
     }
 }

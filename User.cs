@@ -45,14 +45,17 @@ class User
     /// <param name="fromFile">if false prompts the console user for password, if true it takes in password parameter</param>
     public void SetPassword(string password = "", bool fromFile = false)
     {
+        // Helper method for checking password matching
         string TryPassword(string password)
         {
+            // using prompt and isnullorwhitespace for ability to cancel mid
             password = Utility.Prompt("Input password: ");
             if (string.IsNullOrWhiteSpace(password)) { return password; }
 
             string confirm = Utility.Prompt("Confirm password: ");
             if (string.IsNullOrWhiteSpace(confirm)) { return confirm; }
 
+            // using recursion until passwords match or cancelled
             if (password != confirm)
             {
                 Utility.Error("Passwords not matching\nTry again..");
@@ -60,6 +63,7 @@ class User
             }
             return password;
         }
+        // if fromfile it reads the input password string, skips user input
         if (fromFile)
         { _password = password; return; }
 
