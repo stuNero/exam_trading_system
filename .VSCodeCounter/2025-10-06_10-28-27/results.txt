@@ -1,0 +1,37 @@
+Date : 2025-10-06 10:28:27
+Directory : c:\Users\maxve\repos\exam_trading_system
+Total : 11 files,  766 codes, 122 comments, 53 blanks, all 941 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| C#       |          8 |        693 |        122 |         40 |        855 |
+| Markdown |          2 |         65 |          0 |         10 |         75 |
+| XML      |          1 |          8 |          0 |          3 |         11 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++---------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                | files      | code       | comment    | blank      | total      |
++---------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                   |         11 |        766 |        122 |         53 |        941 |
++---------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++---------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                            | language | code       | comment    | blank      | total      |
++---------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| c:\Users\maxve\repos\exam_trading_system\Item.cs                    | C#       |         24 |          7 |          2 |         33 |
+| c:\Users\maxve\repos\exam_trading_system\Menu.cs                    | C#       |          9 |          8 |          2 |         19 |
+| c:\Users\maxve\repos\exam_trading_system\Program.cs                 | C#       |        361 |          0 |         19 |        380 |
+| c:\Users\maxve\repos\exam_trading_system\README.md                  | Markdown |          6 |          0 |          4 |         10 |
+| c:\Users\maxve\repos\exam_trading_system\Trade.cs                   | C#       |         35 |         13 |          2 |         50 |
+| c:\Users\maxve\repos\exam_trading_system\TradeSystem.cs             | C#       |        161 |         34 |          8 |        203 |
+| c:\Users\maxve\repos\exam_trading_system\Tradestatus.cs             | C#       |          7 |          6 |          0 |         13 |
+| c:\Users\maxve\repos\exam_trading_system\User.cs                    | C#       |         45 |         28 |          5 |         78 |
+| c:\Users\maxve\repos\exam_trading_system\Utility.cs                 | C#       |         51 |         26 |          2 |         79 |
+| c:\Users\maxve\repos\exam_trading_system\WIP.md                     | Markdown |         59 |          0 |          6 |         65 |
+| c:\Users\maxve\repos\exam_trading_system\exam_trading_system.csproj | XML      |          8 |          0 |          3 |         11 |
+| Total                                                               |          |        766 |        122 |         53 |        941 |
++---------------------------------------------------------------------+----------+------------+------------+------------+------------+
